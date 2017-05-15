@@ -10,7 +10,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.Key;
 import java.security.KeyStore;
-import java.util.Base64;
+import javax.xml.bind.DatatypeConverter;
 import java.util.Properties;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -66,7 +66,7 @@ public class EncryptionUtil {
             SecretKey secretKey = new SecretKeySpec(encKey.getEncoded(), "AES");
 
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
-            byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(inputData.getBytes()));
+            byte[] decryptedBytes = cipher.doFinal(DatatypeConverter.parseBase64Binary(inputData));
             decryptedString = new String(decryptedBytes);
         }
         catch (Exception e){
