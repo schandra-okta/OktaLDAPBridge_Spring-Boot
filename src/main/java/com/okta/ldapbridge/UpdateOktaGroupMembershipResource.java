@@ -125,7 +125,7 @@ public class UpdateOktaGroupMembershipResource {
             ldapObjStr = LDAPUtil.queryLDAP("(uid="+userName + ")");
             LOGGER.debug("ldapObjStr : " + ldapObjStr);
         } catch (Exception ex) {
-            LOGGER.error(null, ex);
+            LOGGER.error("Exception querying LDAP : "+ ex.getLocalizedMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(myLDAPUtil.buildJSONError("User not found in LDAP for userName: " + userName)).build();
         }  
             
@@ -221,6 +221,7 @@ public class UpdateOktaGroupMembershipResource {
         while(s1itr.hasNext()) {
             String g = s1itr.next();
             g=g.trim();
+            if (g.isEmpty()) continue;
             String gid = getGroupId(g);
             if(gid.contains("NOT FOUND")) {
                 LOGGER.debug("Need to create Group : "+g); 
@@ -272,6 +273,7 @@ public class UpdateOktaGroupMembershipResource {
         while(s2itr.hasNext()) {
             String g = s2itr.next();
             g=g.trim();
+            if (g.isEmpty()) continue;
             String gid = getGroupId(g);
             if(gid.contains("MULTIPLE")) {
                 LOGGER.error("Multiple groups with same name found. Returning failure."); 
@@ -297,7 +299,10 @@ public class UpdateOktaGroupMembershipResource {
             //Build the JSON string to update user's Okta profile
             JSONObject oktaProfileObj = new JSONObject();
             JSONObject oktaProfileInner = new JSONObject();
-            oktaProfileInner.put(oktaJDMemberAttrName, jdMemberListSet);
+            if(jdMemberListSet.contains(""))
+            	jdMemberListSet.remove("");
+            JSONArray groups = new JSONArray(jdMemberListSet);
+            oktaProfileInner.put(oktaJDMemberAttrName, groups);
             oktaProfileObj.put("profile", oktaProfileInner);
             String userResourceURI = oktaAPIUrlPrefix+"/users/"+uUid;
             myHTTPUtil.post(userResourceURI, oktaProfileObj.toString());
@@ -326,8 +331,8 @@ public class UpdateOktaGroupMembershipResource {
                 gid = "NOT FOUND";
                 return gid;
             } 
-            if(jArr.length() > 1) {                
-                LOGGER.debug("Multiple Groups returned from query, checking if we can identify only 1 as relevant"); 
+            if(jArr.length() >= 1) {                
+                LOGGER.debug("One or more groups returned from query, checking if we can identify only 1 as relevant"); 
                 while (itr.hasNext()){
                     JSONObject temp = (JSONObject)itr.next();
                     String name = temp.getJSONObject("profile").getString("name");

@@ -33,7 +33,6 @@ public class UserTypeResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserTypeResource.class);
     private LDAPUtil myLDAPUtil = null;
     
-    String searchFilter = "(uid={0})";
     /**
      * Creates a new instance of UserTypeResource
      */
@@ -56,12 +55,14 @@ public class UserTypeResource {
             LOGGER.error("Empty or missing userName passed.");
             return Response.status(Response.Status.BAD_REQUEST).entity(myLDAPUtil.buildJSONError("UserName cannot be empty")).build();
         }
+        String searchFilter = "(uid={0})";
         searchFilter = MessageFormat.format(searchFilter,userName);
         String result = new String();
         try {
             result = LDAPUtil.queryLDAP(searchFilter);
         } catch (Exception e) {
-            LOGGER.error("Exception querying LDAP", e);
+        	//Log at WARN level since in current implementation, this will be common
+            LOGGER.warn("Exception querying LDAP : "+ e.getLocalizedMessage());
             return Response.status(Response.Status.NOT_FOUND).entity(myLDAPUtil.buildJSONError("User not found in LDAP for userName: " + userName)).build();
         }
         // Build response object

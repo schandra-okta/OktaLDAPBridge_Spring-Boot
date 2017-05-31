@@ -194,20 +194,30 @@ public final class LDAPUtil {
                 value = "";
                 if (!name.equalsIgnoreCase("JDMember")) {
                     // No special handling for single valued attributes
-                    value = attr.get().toString();
+                	try{
+                		value = attr.get().toString();
+                	}
+                	catch(NullPointerException npe){
+                		//Attribute doesn't have value in LDAP
+                		LOGGER.warn("No value found for attribute : "+name);
+                	}
                 } else {
                     // Special handling is required for multi-valued attributes like JDMember
-                    Enumeration valueEnum = attr.getAll();
-                    while(valueEnum.hasMoreElements()) {
-                        if (value != "") {
-                            // Comma is used to separate multiple values
-                            value = value + ", " + valueEnum.nextElement();
-                        } else {
-                            // First element gets added directly
-                            value = (String)valueEnum.nextElement();
-                        }
-                    }
-                    
+                	try{
+                		Enumeration valueEnum = attr.getAll();
+	                    while(valueEnum.hasMoreElements()) {
+	                        if (value != "") {
+	                            // Comma is used to separate multiple values
+	                            value = value + ", " + valueEnum.nextElement();
+	                        } else {
+	                            // First element gets added directly
+	                            value = (String)valueEnum.nextElement();
+	                        }
+	                    }
+                	} catch (NullPointerException npe){
+                		//Attribute doesn't have value in LDAP
+                		LOGGER.warn("No value found for attribute : "+name);
+                	}
                 }
             } catch (NamingException ex) {
                 LOGGER.error(ex + " Unable to retrieve attribute to build JSON");
