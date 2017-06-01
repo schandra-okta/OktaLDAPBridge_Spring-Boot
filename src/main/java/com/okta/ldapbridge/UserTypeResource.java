@@ -56,7 +56,7 @@ public class UserTypeResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(myLDAPUtil.buildJSONError("UserName cannot be empty")).build();
         }
         String searchFilter = "(uid={0})";
-        searchFilter = MessageFormat.format(searchFilter,userName);
+        searchFilter = MessageFormat.format(searchFilter,LDAPUtil.escapeLDAPSearchFilter(userName));
         String result = new String();
         try {
             result = LDAPUtil.queryLDAP(searchFilter);

@@ -122,7 +122,7 @@ public class UpdateOktaGroupMembershipResource {
 
         try {
             //Query LDAP for username and get JDMember attributes of the entry
-            ldapObjStr = LDAPUtil.queryLDAP("(uid="+userName + ")");
+            ldapObjStr = LDAPUtil.queryLDAP("(uid="+LDAPUtil.escapeLDAPSearchFilter(userName) + ")");
             LOGGER.debug("ldapObjStr : " + ldapObjStr);
         } catch (Exception ex) {
             LOGGER.error("Exception querying LDAP : "+ ex.getLocalizedMessage());

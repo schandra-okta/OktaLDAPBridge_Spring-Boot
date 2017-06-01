@@ -110,7 +110,7 @@ public class UpdateUserResource {
         //Update LDAP
         try {
             //Update LDAP entry for user
-            boolean updated = LDAPUtil.updateLDAP("(uid="+userName + ")", attrValmap);
+            boolean updated = LDAPUtil.updateLDAP("(uid="+LDAPUtil.escapeLDAPSearchFilter(userName) + ")", attrValmap);
             LOGGER.debug("LDAP Update result : " + updated);
         } catch (Exception ex) {
             LOGGER.error(null, ex);
